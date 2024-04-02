@@ -18,8 +18,4 @@ def device_normalize(v):
        return v
     return v / norm 
 
-@ti.kernel
-def normalize(v: ti.types.ndarray()) -> ti.types.ndarray():
-    return device_normalize(v)
-
 print(normalize(np.arange(10)))
