@@ -6,11 +6,6 @@ class Reflection_t(object):
 class Sphere(object):
 
     EPSILON_SPHERE = 1e-4
-    # r : np.float64 = 0.0 # radius
-    # p : np.ndarray = np.array([0.0, 0.0, 0.0], dtype=np.float64) # position
-    # e : np.ndarray = np.zeros((3), dtype=np.float64) # emission
-    # f : np.ndarray = np.zeros((3), dtype=np.float64) # color
-    # reflection_t : Reflection_t = Reflection_t.DIFFUSE # reflection type
     
     def __init__(self, r, p, e = np.zeros((3), dtype=np.float64), f = np.zeros((3), dtype=np.float64), reflection_t = Reflection_t.DIFFUSE):
         self.r = np.float64(r)

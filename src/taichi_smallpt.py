@@ -52,17 +52,21 @@ taichi_spheres[8] = TaichiSphere(r=600,  p=ti.math.vec3(50, 681.6 - .27, 81.6), 
 def intersect(ray: TaichiRay) -> ti.types.vector(2, ti.i32):
     id = -1
     hit = 0
-    ti.loop_config(serialize=True)
     for i in range(NUM_SPHERES):
         if taichi_spheres[i].intersect(ray) == 1:
             hit = 1
             id = i
-    # if hit:
-    #     print(id)
-    #     print(ray)
-    #     exit(0)
-    
+
     return ti.Vector([hit, id], dt=ti.i32)
+
+# def intersect(ray):
+#     id = None
+#     hit = False
+#     for i in range(len(spheres)):
+#         if spheres[i].intersect(ray):
+#             hit = True
+#             id = i
+#     return hit, id
 
 def intersectP(ray):
     for i in range(NUM_SPHERES):
@@ -70,11 +74,54 @@ def intersectP(ray):
             return True
     return False
 
+# def radiance(ray, rng):
+#     r = ray
+#     taichi_r = TaichiRay(o=ray.o, d=ray.d, tmin=ray.tmin, tmax=ray.tmax, depth=ray.depth)
+#     L = np.zeros((3), dtype=np.float64)
+#     F = np.ones((3), dtype=np.float64)
+#     while (True):
+#         hit, id = intersect(taichi_r)
+#         if (not hit):
+#             return L
+
+#         shape = spheres[id]
+#         p = r(r.tmax)
+#         n = normalize(p - shape.p)
+
+#         L += F * shape.e
+#         F *= shape.f
+        
+# 	    # Russian roulette
+#         if r.depth > 4:
+#             continue_probability = np.amax(shape.f)
+#             if rng.uniform_float() >= continue_probability:
+#                 return L
+#             F /= continue_probability
+
+#         # Next path segment
+#         if shape.reflection_t == Reflection_t.SPECULAR:
+#             d = ideal_specular_reflect(r.d, n)
+#             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
+#             continue
+#         elif shape.reflection_t == Reflection_t.REFRACTIVE:
+#             d, pr = ideal_specular_transmit(r.d, n, REFRACTIVE_INDEX_OUT, REFRACTIVE_INDEX_IN, rng)
+#             F *= pr
+#             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
+#             continue
+#         else:
+#             w = n if n.dot(r.d) < 0 else -n
+#             u = normalize(np.cross(np.array([0.0, 1.0, 0.0], np.float64) if np.fabs(w[0]) > 0.1 else np.array([1.0, 0.0, 0.0], np.float64), w))
+#             v = np.cross(w, u)
+
+#             sample_d = cosine_weighted_sample_on_hemisphere(rng.uniform_float(), rng.uniform_float())
+#             d = normalize(sample_d[0] * u + sample_d[1] * v + sample_d[2] * w)
+#             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
+#             continue
 def radiance(ray, rng):
     r = ray
-    taichi_r = TaichiRay(o=ray.o, d=ray.d, tmin=ray.tmin, tmax=ray.tmax, depth=ray.depth)
     L = np.zeros((3), dtype=np.float64)
     F = np.ones((3), dtype=np.float64)
+    taichi_r = TaichiRay(o=ray.o, d=ray.d, tmin=ray.tmin, tmax=ray.tmax, depth=ray.depth)
     while (True):
         hit, id = intersect(taichi_r)
         if (not hit):
@@ -113,7 +160,6 @@ def radiance(ray, rng):
             d = normalize(sample_d[0] * u + sample_d[1] * v + sample_d[2] * w)
             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
             continue
-
 import sys
 
 def main():

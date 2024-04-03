@@ -2,16 +2,15 @@ import taichi as ti
 from taichi_ray import TaichiRay
 
 EPSILON_SPHERE : ti.f32 = 1e-4
+
+DIFFUSE = 0
+SPECULAR = 1
+REFRACTIVE = 2
+
 ti.init(arch=ti.cpu, default_fp=ti.f64)
 
 @ti.dataclass
 class TaichiSphere:
-    # EPSILON_SPHERE = 1e-4
-    # r : np.float64 = 0.0 # radius
-    # p : np.ndarray = np.array([0.0, 0.0, 0.0], dtype=np.float64) # position
-    # e : np.ndarray = np.zeros((3), dtype=np.float64) # emission
-    # f : np.ndarray = np.zeros((3), dtype=np.float64) # color
-    # reflection_t : Reflection_t = Reflection_t.DIFFUSE # reflection type
     r : ti.f64
     p : ti.math.vec3
     e : ti.math.vec3
@@ -47,9 +46,6 @@ class TaichiSphere:
     # def intersect(self, ray: TaichiRay) -> bool: # returns 0 or 1 (false, true)
     #     self._intersect
 
-DIFFUSE = 0
-SPECULAR = 1
-REFRACTIVE = 2
 
 spheres = TaichiSphere.field(shape=(8,))
 spheres[0] = TaichiSphere(r=1e5,  p=ti.math.vec3(-1e5 + 99, 40.8, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.25,0.25,0.75), reflection_t=DIFFUSE)
@@ -66,4 +62,5 @@ def ker() -> ti.i32:
     r = TaichiRay(o=ti.math.vec3(5.51343103, 13.12694412, 167.13848632), d=ti.math.vec3(-0.31462631, -0.27492536, -0.90852976), tmin=EPSILON_SPHERE, tmax=ti.math.inf, depth=0)
     return spheres[0].intersect(r)
 
-print(ker())
+if __name__ == '__main__':
+    print(ker())

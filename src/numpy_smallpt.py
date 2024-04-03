@@ -32,10 +32,6 @@ def intersect(ray):
         if spheres[i].intersect(ray):
             hit = True
             id = i
-    if hit:
-        print(id)
-        print(ray)
-        exit(0)
     return hit, id
 
 def intersectP(ray):
