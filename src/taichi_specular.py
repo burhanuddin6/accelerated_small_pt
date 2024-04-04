@@ -58,9 +58,8 @@ def schlick_reflectance(n1: ti.f64, n2: ti.f64, c: ti.f64) -> ti.f64:
     return R0 + (1.0 - R0) * c * c * c * c * c
 
 @ti.func
-def ideal_specular_transmit(d: ti.math.vec3, n: ti.math.vec3, n_out: ti.f64, n_in: ti.f64) -> ti.types.struct(x1=ti.math.vec3, x2=ti.f64):
-    ret_type = ti.types.struct(x1=ti.math.vec3, x2=ti.f64)
-    ret_val = ret_type(x1=ti.math.vec3(0, 0, 0), x2=0)
+def ideal_specular_transmit(d: ti.math.vec3, n: ti.math.vec3, n_out: ti.f64, n_in: ti.f64) -> ti.math.vec4:    
+    ret_val = ti.math.vec4(0, 0, 0, 0)
     n_out, n_in = ti.f64(n_out), ti.f64(n_in)
     d_Re = ideal_specular_reflect(d, n)
 
@@ -72,9 +71,8 @@ def ideal_specular_transmit(d: ti.math.vec3, n: ti.math.vec3, n_out: ti.f64, n_i
 
     # Total Internal Reflection
     if cos2_phi < 0:
-        # return d_Re, 1.0
-        ret_val.x1 = d_Re
-        ret_val.x2 = 1.0
+        # return d_Re, 1.0        
+        ret_val = ti.math.vec4(d_Re[0], d_Re[1], d_Re[2], 1.0)
     else:
         # d_Tr = normalize(nn * d - nl * (nn * cos_theta + ti.math.sqrt(cos2_phi)))
         d_Tr = ti.math.normalize(nn * d - nl * (nn * cos_theta + ti.math.sqrt(cos2_phi)))
@@ -84,15 +82,13 @@ def ideal_specular_transmit(d: ti.math.vec3, n: ti.math.vec3, n_out: ti.f64, n_i
         p_Re = 0.25 + 0.5 * Re
         # if uniform_float() < p_Re:
         if 0.5 < p_Re:
-            # return d_Re, (Re / p_Re)
-            ret_val.x1 = d_Re
-            ret_val.x2 = (Re / p_Re)
+            # return d_Re, (Re / p_Re)            
+            ret_val = ti.math.vec4(d_Re[0], d_Re[1], d_Re[2], Re / p_Re)
         else:
             Tr = 1.0 - Re
             p_Tr = 1.0 - p_Re
-            # return d_Tr, (Tr / p_Tr)
-            ret_val.x1 = d_Tr
-            ret_val.x2 = (Tr / p_Tr)
+            # return d_Tr, (Tr / p_Tr)            
+            ret_val = ti.math.vec4(d_Tr[0], d_Tr[1], d_Tr[2], Tr / p_Tr)
     return ret_val
 
 @ti.kernel
@@ -103,7 +99,7 @@ def test_ideal_specular_reflect():
             "\nGot Value: ", ideal_specular_reflect(d, n))
 
 @ti.kernel
-def _test_ideal_specular_transmit(d: ti.math.vec3, n: ti.math.vec3, n_out: ti.f64, n_in: ti.f64) -> ti.types.struct(x1=ti.math.vec3, x2=ti.f64):
+def _test_ideal_specular_transmit(d: ti.math.vec3, n: ti.math.vec3, n_out: ti.f64, n_in: ti.f64) -> ti.math.vec4:
     return ideal_specular_transmit(d, n, n_out, n_in)
 
 def test_ideal_specular_transmit():
