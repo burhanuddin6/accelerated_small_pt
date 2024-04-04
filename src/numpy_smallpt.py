@@ -40,7 +40,7 @@ def intersectP(ray):
             return True
     return False
 
-def radiance(ray, rng):
+def radiance(ray: Ray, rng: RNG):
     r = ray
     L = np.zeros((3), dtype=np.float64)
     F = np.ones((3), dtype=np.float64)
@@ -70,7 +70,9 @@ def radiance(ray, rng):
             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
             continue
         elif shape.reflection_t == Reflection_t.REFRACTIVE:
+            print(r.d, n, REFRACTIVE_INDEX_OUT, REFRACTIVE_INDEX_IN, rng)
             d, pr = ideal_specular_transmit(r.d, n, REFRACTIVE_INDEX_OUT, REFRACTIVE_INDEX_IN, rng)
+            print(d, pr)
             F *= pr
             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
             continue
@@ -126,6 +128,5 @@ def main():
     write_ppm(w, h, Ls)
 
 if __name__ == "__main__":
-    # main()
-    s = Sphere(r=1e5,  p=np.array([1e5 + 1, 40.8, 81.6],    dtype=np.float64), f=np.array([0.75,0.25,0.25],      dtype=np.float64))
-    r = Ray    
+    main()
+    # s = Sphere(r=1e5,  p=np.array([1e5 + 1, 40.8, 81.6],    dtype=np.float64), f=np.array([0.75,0.25,0.25],      dtype=np.float64)
