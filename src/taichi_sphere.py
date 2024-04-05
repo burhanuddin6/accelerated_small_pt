@@ -70,4 +70,4 @@ if __name__ == '__main__':
     import ray, numpy_smallpt
     import numpy as np
     r = ray.Ray(np.array([6.07510647, 13.13940276, 167.13795543]), np.array([-0.31104694, -0.27518496, -0.90968293]), 0.0, np.inf, 0)
-    print(numpy_smallpt.spheres[4].intersect(r))
+    print(numpy_smallpt.spheres[3].intersect(r))

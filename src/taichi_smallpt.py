@@ -40,6 +40,7 @@ def intersect(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
         if hit_tmax[0] == 1:
             print("id: ", i, "ray.tmax taichi: ", hit_tmax[1])
             tmax = hit_tmax[1]
+            ray.tmax = tmax
             hit = 1
             id = i
 
@@ -58,7 +59,10 @@ def radiance(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
     w = ti.Vector([0.0, 0.0, 0.0], dt=ti.f64)
     v = ti.Vector([0.0, 0.0, 0.0], dt=ti.f64)
     u = ti.Vector([0.0, 0.0, 0.0], dt=ti.f64)
+    
+    ti.loop_config(serialize=True)
     while True:
+        print("ray.o=", r.o, "ray.d=", r.d)
         hit_id_tmax = intersect(r)
         hit = int(hit_id_tmax[0])
         id = int(hit_id_tmax[1])
@@ -90,14 +94,19 @@ def radiance(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
 
         # Next path segment
         if shape.reflection_t == DIFFUSE:
+            # w = n if n.dot(r.d) < 0 else -n
+            # u = normalize(np.cross(np.array([0.0, 1.0, 0.0], np.float64) if np.fabs(w[0]) > 0.1 else np.array([1.0, 0.0, 0.0], np.float64), w))
+            # v = np.cross(w, u)
+
+            # sample_d = cosine_weighted_sample_on_hemisphere(rng.uniform_float(), rng.uniform_float())
+            # d = normalize(sample_d[0] * u + sample_d[1] * v + sample_d[2] * w)
+            # r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
+            # continue
             # if n.dot(r.d) < 0:
             if ti.math.dot(n, r.d) < 0:
                 w = n  
             else:
                 w = -n
-                
-            # u = normalize(ti.cross(ti.vec3(0.0, 1.0, 0.0) if ti.abs(w[0]) > 0.1 else ti.vec3(1.0, 0.0, 0.0), w)
-            # np.array([0.0, 1.0, 0.0], np.float64) if np.fabs(w[0]) > 0.1 else np.array([1.0, 0.0, 0.0], np.float64)
             if ti.abs(w[0]) > 0.1:
                 u = ti.math.normalize(ti.math.cross(ti.Vector([0.0, 1.0, 0.0], dt=ti.f64), w))
             else:
