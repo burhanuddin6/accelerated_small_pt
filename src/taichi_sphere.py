@@ -43,17 +43,6 @@ class TaichiSphere:
     #  @ti.func
     # def intersect(self, ray: TaichiRay) -> bool: # returns 0 or 1 (false, true)
     #     self._intersect
-taichi_spheres = TaichiSphere.field(shape=(NUM_SPHERES,))
-taichi_spheres[0] = TaichiSphere(r=1e5,  p=ti.math.vec3(1e5 + 1, 40.8, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.75,0.25,0.25), reflection_t=DIFFUSE)
-taichi_spheres[1] = TaichiSphere(r=1e5,  p=ti.math.vec3(-1e5 + 99, 40.8, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.25,0.25,0.75), reflection_t=DIFFUSE)
-taichi_spheres[2] = TaichiSphere(r=1e5,  p=ti.math.vec3(50, 40.8, 1e5), e=ti.math.vec3(0), f=ti.math.vec3(0.75, 0.75, 0.75), reflection_t=DIFFUSE)
-taichi_spheres[3] = TaichiSphere(r=1e5,  p=ti.math.vec3(50, 40.8, -1e5 + 170), e=ti.math.vec3(0), f=ti.math.vec3(0), reflection_t=DIFFUSE)
-taichi_spheres[4] = TaichiSphere(r=1e5,  p=ti.math.vec3(50, 1e5, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.75, 0.75, 0.75), reflection_t=DIFFUSE)
-taichi_spheres[5] = TaichiSphere(r=1e5,  p=ti.math.vec3(50, -1e5 + 81.6, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.75, 0.75, 0.75), reflection_t=DIFFUSE)
-taichi_spheres[6] = TaichiSphere(r=16.5, p=ti.math.vec3(27, 16.5, 47), e=ti.math.vec3(0), f=ti.math.vec3(0.999, 0.999, 0.999), reflection_t=SPECULAR)
-taichi_spheres[7] = TaichiSphere(r=16.5, p=ti.math.vec3(73, 16.5, 78), e=ti.math.vec3(0), f=ti.math.vec3(0.999, 0.999, 0.999), reflection_t=REFRACTIVE)
-taichi_spheres[8] = TaichiSphere(r=600,  p=ti.math.vec3(50, 681.6 - .27, 81.6), e=ti.math.vec3(12, 12, 12), f=ti.math.vec3(0), reflection_t=DIFFUSE)
-
 
 @ti.kernel
 def ker() -> ti.math.vec2:
@@ -66,8 +55,10 @@ def ker() -> ti.math.vec2:
 
 
 if __name__ == '__main__':
-    print(ker())
-    import ray, numpy_smallpt
-    import numpy as np
-    r = ray.Ray(np.array([6.07510647, 13.13940276, 167.13795543]), np.array([-0.31104694, -0.27518496, -0.90968293]), 0.0, np.inf, 0)
-    print(numpy_smallpt.spheres[3].intersect(r))
+    pass
+    # print(ker())
+    # import ray, numpy_smallpt
+    # import numpy as np
+    # r = ray.Ray(np.array([6.07510647, 13.13940276, 167.13795543]), np.array([-0.31104694, -0.27518496, -0.90968293]), 0.0, np.inf, 0)
+    # print(numpy_smallpt.spheres[4].intersect(r))
+

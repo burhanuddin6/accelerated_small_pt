@@ -60,6 +60,7 @@ def radiance(ray: Ray, rng: RNG):
         L += F * shape.e
         print("L: ", L, "shape.e: ", shape.e)
         F *= shape.f
+        print("L:", L)
 	    # Russian roulette
         if r.depth > 4:
             continue_probability = np.amax(shape.f)
