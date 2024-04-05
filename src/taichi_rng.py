@@ -1,12 +1,10 @@
 import taichi as ti
 import random
-ti.init(arch=ti.cpu, default_fp=ti.f64)
-# uniform random number generator in taich
 
 
 @ti.func
 def uniform_float() -> ti.f64:
-    return random.uniform(0.0, 1.0)
+    return ti.randn(dt=ti.f64)
 
 
 @ti.kernel

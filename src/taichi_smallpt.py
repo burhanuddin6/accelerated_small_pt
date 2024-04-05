@@ -2,10 +2,10 @@ import numpy as np
 import sys
 
 from image_io import write_ppm
-from math_tools import normalize
-from rng import RNG
-from sphere import Sphere, Reflection_t
-from ray import Ray
+# from math_tools import normalize
+# from rng import RNG
+# from sphere import Sphere, Reflection_t
+# from ray import Ray
 
 from taichi_common import *
 from taichi_ray import TaichiRay
@@ -13,6 +13,8 @@ from taichi_sampling import cosine_weighted_sample_on_hemisphere
 from taichi_sphere import TaichiSphere
 from taichi_specular import ideal_specular_reflect, ideal_specular_transmit
 from taichi_rng import uniform_float
+
+ti.init(arch=ti.cpu, default_fp=ti.f64, random_seed=606418532)
 
 taichi_spheres = TaichiSphere.field(shape=(NUM_SPHERES,))
 taichi_spheres[0] = TaichiSphere(r=1e5,  p=ti.math.vec3(1e5 + 1, 40.8, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.75,0.25,0.25), reflection_t=DIFFUSE)
@@ -38,8 +40,9 @@ def intersect(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
     for i in range(NUM_SPHERES):
         hit_tmax = taichi_spheres[i].intersect(ray)
         if hit_tmax[0] == 1:
-            print("id: ", i, "ray.tmax taichi: ", hit_tmax[1])
+            # print("id: ", i, "ray.tmax taichi: ", hit_tmax[1])
             tmax = hit_tmax[1]
+            ray.tmax = tmax
             hit = 1
             id = i
 
@@ -58,7 +61,7 @@ def radiance(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
     w = ti.Vector([0.0, 0.0, 0.0], dt=ti.f64)
     v = ti.Vector([0.0, 0.0, 0.0], dt=ti.f64)
     u = ti.Vector([0.0, 0.0, 0.0], dt=ti.f64)
-    while True:
+    while True:        
         hit_id_tmax = intersect(r)
         hit = int(hit_id_tmax[0])
         id = int(hit_id_tmax[1])
@@ -69,15 +72,16 @@ def radiance(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
             break
 
         shape = taichi_spheres[id]
-        print(r.tmax)
+        # print(r.tmax)
         p = r.at(r.tmax)
-        print("p: ", p, "r.tmax: ", r.tmax)
-        print("id: ", id)
+        # print("p: ", p, "r.tmax: ", r.tmax)
+        # print("id: ", id)
         # n = normalize(p - shape.p)
         n = ti.math.normalize(p - shape.p)
         
         L += F * shape.e
         F *= shape.f
+        # print("L:", L)
 
         # Russian roulette
         if r.depth > 4:
@@ -132,45 +136,63 @@ def test_taichi_intersect():
     ray = TaichiRay(o=ti.math.vec3(6.0158059,  13.1736803, 167.1364948), d=ti.math.vec3(-0.31144403, -0.27492206, -0.90962656), tmin=0.0, tmax=ti.math.inf, depth=0)
     print(intersect(ray))
 
-def main():
-    rng = RNG()
-    nb_samples = int(sys.argv[1]) // 4 if len(sys.argv) > 1 else 1
+@ti.func
+def clip(v, a_min, a_max):
+    return ti.Vector([
+        ti.min(ti.max(v[0], a_min), a_max),
+        ti.min(ti.max(v[1], a_min), a_max),
+        ti.min(ti.max(v[2], a_min), a_max)
+    ])
 
-    w = 100
-    h = 100
-
-    eye = np.array([50, 52, 295.6], dtype=np.float64)
-    gaze = normalize(np.array([0, -0.042612, -1], dtype=np.float64))
-    fov = 0.5135
-    cx = np.array([w * fov / h, 0.0, 0.0], dtype=np.float64)
-    cy = normalize(np.cross(cx, gaze)) * fov
-
-    Ls = np.zeros((w * h, 3), dtype=np.float64)
+@ti.kernel
+def main(nb_samples: int, w: int, h: int):    
     
-    for y in range(h):
-        # pixel row
-        print('\rRendering ({0} spp) {1:0.2f}%'.format(nb_samples * 4, 100.0 * y / (h - 1)))
-        for x in range(w):
-            # pixel column
-            for sy in range(2):
-                i = (h - 1 - y) * w + x
-                # 2 subpixel row
-                for sx in range(2):
-                    # 2 subpixel column
-                    L = np.zeros((3), dtype=np.float64)
-                    for s in range(nb_samples):
-                        #  samples per subpixel
-                        u1 = 2.0 * rng.uniform_float()
-                        u2 = 2.0 * rng.uniform_float()
-                        dx = np.sqrt(u1) - 1.0 if u1 < 1 else 1.0 - np.sqrt(2.0 - u1)
-                        dy = np.sqrt(u2) - 1.0 if u2 < 1 else 1.0 - np.sqrt(2.0 - u2)
-                        d = cx * (((sx + 0.5 + dx) / 2.0 + x) / w - 0.5) + \
-                            cy * (((sy + 0.5 + dy) / 2.0 + y) / h - 0.5) + gaze
-                        L += radiance(Ray(eye + d * 130, normalize(d), tmin=Sphere.EPSILON_SPHERE), rng) * (1.0 / nb_samples)
-                    Ls[i,:] += 0.25 * np.clip(L, a_min=0.0, a_max=1.0)
+    # eye = np.array([50, 52, 295.6], dtype=np.float64)
+    # gaze = normalize(np.array([0, -0.042612, -1], dtype=np.float64))
+    # fov = 0.5135
+    # cx = np.array([w * fov / h, 0.0, 0.0], dtype=np.float64)
+    # cy = normalize(np.cross(cx, gaze)) * fov
 
-    write_ppm(w, h, Ls)
+    # Ls = np.zeros((w * h, 3), dtype=np.float64)
+
+    eye = ti.Vector([50, 52, 295.6], dt=ti.f64)
+    gaze = ti.math.normalize(ti.Vector([0, -0.042612, -1], dt=ti.f64))
+    fov = 0.5135
+    cx = ti.Vector([w * fov / h, 0.0, 0.0], dt=ti.f64)
+    cy = ti.math.normalize(ti.math.cross(cx, gaze)) * fov
+
+    
+    for y,x in ti.ndrange(h, w):
+        # pixel row and column
+        # print('\rRendering ({0} spp) {1:0.2f}%'.format(nb_samples * 4, 100.0 * y / (h - 1)))                    
+        for sy in range(2):
+            i = (h - 1 - y) * w + x
+            # 2 subpixel row
+            for sx in range(2):
+                # 2 subpixel column
+                L = ti.math.vec3(0)
+                for s in range(nb_samples):
+                    #  samples per subpixel
+                    u1 = 2.0 * uniform_float()
+                    u2 = 2.0 * uniform_float()
+                    dx = ti.math.sqrt(u1) - 1.0 if u1 < 1 else 1.0 - ti.math.sqrt(2.0 - u1)
+                    dy = ti.math.sqrt(u2) - 1.0 if u2 < 1 else 1.0 - ti.math.sqrt(2.0 - u2)
+                    d = cx * (((sx + 0.5 + dx) / 2.0 + x) / w - 0.5) + \
+                        cy * (((sy + 0.5 + dy) / 2.0 + y) / h - 0.5) + gaze
+                    temp = radiance(TaichiRay(o=eye + d * 130, d=ti.math.normalize(d), tmin=EPSILON_SPHERE, tmax=ti.math.inf, depth=0)) 
+                    L += temp * (1.0 / nb_samples)
+                    # print("radiance:", temp)                
+                temp = 0.25 * clip(L, a_min=0.0, a_max=1.0)
+                Ls[i,0] += temp[0]
+                Ls[i,1] += temp[1]
+                Ls[i,2] += temp[2]
 
 if __name__ == "__main__":
     # test_taichi_intersect()
-    test_taichi_radiance()
+    w = 400
+    h = 400
+    Ls = ti.field(dtype=ti.f64, shape=(w * h, 3))
+    nb_samples = int(sys.argv[1]) // 4 if len(sys.argv) > 1 else 1
+    main(nb_samples, w, h)
+    ti.sync()
+    write_ppm(w, h, Ls, "taichi-image.ppm")

@@ -1,7 +1,5 @@
 import taichi as ti
 
-ti.init(arch=ti.cpu, default_fp=ti.f64)
-
 EPSILON_SPHERE = 1e-4   
 DIFFUSE = 0
 SPECULAR = 1
