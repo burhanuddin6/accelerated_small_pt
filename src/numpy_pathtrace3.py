@@ -89,8 +89,8 @@ def main():
     rng = RNG()
     nb_samples = int(sys.argv[1]) // 4 if len(sys.argv) > 1 else 1
 
-    w = 1024
-    h = 768
+    w = 400
+    h = 400
 
     eye = np.array([50, 52, 295.6], dtype=np.float64)
     gaze = normalize(np.array([0, -0.042612, -1], dtype=np.float64))
