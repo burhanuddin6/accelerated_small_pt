@@ -7,6 +7,7 @@ from rng import RNG
 from sampling import cosine_weighted_sample_on_hemisphere
 from sphere import Sphere, Reflection_t
 from specular import ideal_specular_reflect, ideal_specular_transmit
+import time
 
 # Scene
 REFRACTIVE_INDEX_OUT = 1.0
@@ -91,11 +92,12 @@ def radiance(ray: Ray, rng: RNG):
 import sys
 
 def main():
+    elapsed_time = time.time()
     rng = RNG()
     nb_samples = int(sys.argv[1]) // 4 if len(sys.argv) > 1 else 1
 
-    w = 1024
-    h = 768
+    w = 400
+    h = 400
 
     eye = np.array([50, 52, 295.6], dtype=np.float64)
     gaze = normalize(np.array([0, -0.042612, -1], dtype=np.float64))
@@ -133,9 +135,12 @@ def main():
                         #     exit(0)
                     
                     Ls[i,:] += 0.25 * np.clip(L, a_min=0.0, a_max=1.0)
+    
+    elapsed_time = time.time() - elapsed_time
+    with open("time.txt", "a") as file:
+        file.write("\n" + "numpy" + " " + str(nb_samples) + " " + str(elapsed_time))
+    print(elapsed_time)    
 
-    write_ppm(w, h, Ls)
-
-if __name__ == "__main__":
+if __name__ == "__main__":    
     main()
-    # s = Sphere(r=1e5,  p=np.array([1e5 + 1, 40.8, 81.6],    dtype=np.float64), f=np.array([0.75,0.25,0.25],      dtype=np.float64)
+    

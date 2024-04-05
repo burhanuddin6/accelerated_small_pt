@@ -195,8 +195,8 @@ def main(nb_samples: int, w: int, h: int):
 if __name__ == "__main__":
     elapsed_time = time.time() 
 
-    w = 1024
-    h = 768
+    w = 400
+    h = 400
     Ls = ti.field(dtype=ti.f64, shape=(w * h, 3))
     nb_samples = int(sys.argv[1]) // 4 if len(sys.argv) > 1 else 1
     main(nb_samples, w, h)
@@ -205,5 +205,4 @@ if __name__ == "__main__":
     elapsed_time = time.time() - elapsed_time
     with open("time.txt", "a") as file:
         file.write("\n" + device + " " + str(nb_samples) + " " + str(elapsed_time))
-    print(elapsed_time)
-    write_ppm(w, h, Ls, "taichi-cornwell.ppm")
+    print(elapsed_time)    
