@@ -89,7 +89,7 @@ def radiance(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
         # print("L:", L)
 
         # Russian roulette
-        if r.depth > 4:
+        if r.depth > 7:
             continue_probability = ti.math.max(shape.f[0], shape.f[1], shape.f[2])
             random_val = ti.random(float)
             if  random_val >= continue_probability:
@@ -184,7 +184,7 @@ def main(nb_samples: int, w: int, h: int):
                     temp = radiance(TaichiRay(o=eye + d * 130, d=ti.math.normalize(d), tmin=EPSILON_SPHERE, tmax=ti.math.inf, depth=0)) 
                     L += temp * (1.0 / nb_samples)
                     # print("radiance:", temp)                
-                temp = 0.5 * clip(L, a_min=0.0, a_max=1.0)
+                temp = 1 * clip(L, a_min=0.0, a_max=1.0)
                 Ls[i,0] += temp[0]
                 Ls[i,1] += temp[1]
                 Ls[i,2] += temp[2]
