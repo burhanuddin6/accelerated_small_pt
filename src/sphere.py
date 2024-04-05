@@ -15,7 +15,6 @@ class Sphere(object):
         self.reflection_t = reflection_t
 
     def intersect(self, ray):
-
         op = self.p - ray.o
         dop = ray.d.dot(op)
         D = dop * dop - op.dot(op) + self.r * self.r
@@ -34,7 +33,6 @@ class Sphere(object):
         if (ray.tmin < tmax and tmax < ray.tmax):
             ray.tmax = tmax
             return True
-        
         return False
     
     def __str__(self) -> str:

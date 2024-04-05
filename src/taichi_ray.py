@@ -16,6 +16,7 @@
 #         return 'o: ' + str(self.o) + '\n' + 'd: ' + str(self.d) + '\n'
 
 import taichi as ti
+ti.init(arch=ti.cpu)
 
 @ti.dataclass
 class TaichiRay:
@@ -25,11 +26,18 @@ class TaichiRay:
     tmax : ti.f64 
     depth : ti.i32
     
-    
-    def at(self, t):
+    @ti.func
+    def at(self, t: ti.f64) -> ti.math.vec3:
         return self.o + self.d * t
+
 
     # @ti.func
     # def __str__(self):
     #     return 'o: ' + str(self.o) + '\n' + 'd: ' + str(self.d) + '\n'
+
+@ti.kernel
+def test_ray():
+    ray = TaichiRay(ti.Vector([0.0, 0.0, 0.0]), ti.Vector([1.0, 1.0, 1.0]), 0.0, 1.0, 0)
+    print(ray.at(0.5))
     
+test_ray()

@@ -44,7 +44,6 @@ def radiance(ray: Ray, rng: RNG):
     r = ray
     L = np.zeros((3), dtype=np.float64)
     F = np.ones((3), dtype=np.float64)
-
     while (True):
         hit, id = intersect(r)
         if (not hit):
@@ -52,11 +51,12 @@ def radiance(ray: Ray, rng: RNG):
 
         shape = spheres[id]
         p = r(r.tmax)
+        print("p: ", p, "r.tmax: ", r.tmax)
+        print("id: ", id)
         n = normalize(p - shape.p)
 
         L += F * shape.e
         F *= shape.f
-        
 	    # Russian roulette
         if r.depth > 4:
             continue_probability = np.amax(shape.f)
@@ -70,9 +70,7 @@ def radiance(ray: Ray, rng: RNG):
             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
             continue
         elif shape.reflection_t == Reflection_t.REFRACTIVE:
-            print(r.d, n, REFRACTIVE_INDEX_OUT, REFRACTIVE_INDEX_IN, rng)
             d, pr = ideal_specular_transmit(r.d, n, REFRACTIVE_INDEX_OUT, REFRACTIVE_INDEX_IN, rng)
-            print(d, pr)
             F *= pr
             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
             continue
@@ -122,7 +120,14 @@ def main():
                         dy = np.sqrt(u2) - 1.0 if u2 < 1 else 1.0 - np.sqrt(2.0 - u2)
                         d = cx * (((sx + 0.5 + dx) / 2.0 + x) / w - 0.5) + \
                             cy * (((sy + 0.5 + dy) / 2.0 + y) / h - 0.5) + gaze
-                        L += radiance(Ray(eye + d * 130, normalize(d), tmin=Sphere.EPSILON_SPHERE), rng) * (1.0 / nb_samples)
+                        temp = radiance(Ray(eye + d * 130, normalize(d), tmin=Sphere.EPSILON_SPHERE), rng) * (1.0 / nb_samples)
+                        L += temp
+                        print('==================================================')
+                        print("ray: ", Ray(eye + d * 130, normalize(d), tmin=Sphere.EPSILON_SPHERE))
+                        print(temp)
+                        if all(i > 0 for i in temp):
+                            exit(0)
+                    
                     Ls[i,:] += 0.25 * np.clip(L, a_min=0.0, a_max=1.0)
 
     write_ppm(w, h, Ls)

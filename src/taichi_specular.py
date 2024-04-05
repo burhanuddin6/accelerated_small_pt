@@ -112,4 +112,7 @@ def test_ideal_specular_transmit():
             "\nGot Value: ", _test_ideal_specular_transmit(ti.Vector(d), ti.Vector(n), n_out, n_in))
 
 if __name__ == '__main__':
-    test_ideal_specular_transmit()
+    # change uniform float to some const value in _ideal... and _test_ideal... calls in test_ideal_specular_transmit
+    # before running the below code
+    # test_ideal_specular_transmit()
+    pass
