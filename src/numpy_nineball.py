@@ -13,11 +13,16 @@ REFRACTIVE_INDEX_OUT = 1.0
 REFRACTIVE_INDEX_IN = 1.5
 
 spheres = [
-    Sphere(r=1e3, p=np.array([50, 1000, -500], dtype=np.float64), f=np.array([1, 1, 1], dtype=np.float64)),
-    Sphere(r=600, p=np.array([50, -600, 12], dtype=np.float64), f=np.array([1, 1, 1], dtype=np.float64)),
-    Sphere(r=26, p=np.array([0, 30, 0], dtype=np.float64), f=np.array([1, 0, 0], dtype=np.float64)),
-    Sphere(r=26, p=np.array([100, 30, 0], dtype=np.float64), f=np.array([0, 1, 0], dtype=np.float64)),
-    Sphere(r=26, p=np.array([50, 30, 0], dtype=np.float64), e=np.array([24, 24, 24], dtype=np.float64), f=np.array([0], dtype=np.float64)),
+    Sphere(r=1e5, p=np.array([50.0, 1e5 - 4.0, 81.6]), e=np.array([0.0, 0.0, 0.0]), f=np.array([1.0, 1.0, 1.0]), reflection_t=DIFFUSE),  # Botm
+    Sphere(r=12.0, p=np.array([48.0, 32.0, 24.0]), e=np.array([3.0, 3.0, 3.0]), f=np.array([0.0, 0.0, 0.0]), reflection_t=DIFFUSE),  # light
+    Sphere(r=12.0, p=np.array([24.0, 8.0, 40.0]), e=np.array([0.0, 0.0, 0.0]), f=np.array([0.408, 0.741, 0.467]), reflection_t=DIFFUSE),  # small sphere 2
+    Sphere(r=12.0, p=np.array([24.0, 8.0, -8.0]), e=np.array([0.0, 0.0, 0.0]), f=np.array([0.392, 0.584, 0.929]), reflection_t=DIFFUSE),  # 3
+    Sphere(r=12.0, p=np.array([20.0, 52.0, 40.0]), e=np.array([0.0, 0.0, 0.0]), f=np.array([1.0, 0.498, 0.314]), reflection_t=DIFFUSE),  # 5
+    Sphere(r=12.0, p=np.array([24.0, 48.0, -8.0]), e=np.array([0.0, 0.0, 0.0]), f=np.array([0.95, 0.95, 0.95]), reflection_t=SPECULAR),  # 5
+    Sphere(r=12.0, p=np.array([72.0, 8.0, 40.0]), e=np.array([0.0, 0.0, 0.0]), f=np.array([0.95, 0.95, 0.95]), reflection_t=SPECULAR),  # 3
+    Sphere(r=12.0, p=np.array([72.0, 8.0, -8.0]), e=np.array([0.0, 0.0, 0.0]), f=np.array([1.0, 0.498, 0.314]), reflection_t=DIFFUSE),  # 2
+    Sphere(r=12.0, p=np.array([76.0, 52.0, 40.0]), e=np.array([0.0, 0.0, 0.0]), f=np.array([0.392, 0.584, 0.929]), reflection_t=DIFFUSE),  # 1
+    Sphere(r=12.0, p=np.array([72.0, 48.0, -8.0]), e=np.array([0.0, 0.0, 0.0]), f=np.array([0.408, 0.741, 0.467]), reflection_t=DIFFUSE)
 ]
 
 def intersect(ray):
@@ -129,7 +134,7 @@ def main():
                     
                     Ls[i,:] += 0.25 * np.clip(L, a_min=0.0, a_max=1.0)
 
-    write_ppm(w, h, Ls, "numpy_pathtrace3.ppm")
+    write_ppm(w, h, Ls, "numpy_nineball.ppm")
 
 if __name__ == "__main__":
     main()

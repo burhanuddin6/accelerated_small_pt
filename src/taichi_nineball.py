@@ -21,13 +21,18 @@ if(device == "gpu"):
 else:
     ti.init(arch=ti.cpu, default_fp=ti.f64, random_seed=606418532)
 
-NUM_SPHERES = 5
+NUM_SPHERES = 10
 taichi_spheres = TaichiSphere.field(shape=(NUM_SPHERES,))
-taichi_spheres[0] = TaichiSphere(r=1e3,  p=ti.math.vec3(50, 1000, -500), e=ti.math.vec3(0), f=ti.math.vec3(1, 1, 1), reflection_t=DIFFUSE)
-taichi_spheres[1] = TaichiSphere(r=600,  p=ti.math.vec3(50, -600, 12), e=ti.math.vec3(0), f=ti.math.vec3(1, 1, 1), reflection_t=DIFFUSE)
-taichi_spheres[2] = TaichiSphere(r=26, p=ti.math.vec3(0, 30, 0), e=ti.math.vec3(0), f=ti.math.vec3(1, 0, 0), reflection_t=DIFFUSE)
-taichi_spheres[3] = TaichiSphere(r=26, p=ti.math.vec3(100, 30, 0), e=ti.math.vec3(0), f=ti.math.vec3(0, 1, 0), reflection_t=DIFFUSE)
-taichi_spheres[4] = TaichiSphere(r=26,  p=ti.math.vec3(50, 30, 0), e=ti.math.vec3(24, 24, 24), f=ti.math.vec3(0), reflection_t=DIFFUSE)
+taichi_spheres[0] = TaichiSphere(r=1e5, p=ti.Vector([50.0, 1e5 - 4.0, 81.6]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([1.0, 1.0, 1.0]), reflection_t=DIFFUSE)  # Botm
+taichi_spheres[1] = TaichiSphere(r=12.0, p=ti.Vector([48.0, 32.0, 24.0]), e=ti.Vector([3.0, 3.0, 3.0]), f=ti.Vector([0.0, 0.0, 0.0]), reflection_t=DIFFUSE)  # light
+taichi_spheres[2] = TaichiSphere(r=12.0, p=ti.Vector([24.0, 8.0, 40.0]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([0.408, 0.741, 0.467]), reflection_t=DIFFUSE)  # small sphere 2
+taichi_spheres[3] = TaichiSphere(r=12.0, p=ti.Vector([24.0, 8.0, -8.0]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([0.392, 0.584, 0.929]), reflection_t=DIFFUSE)  # 3
+taichi_spheres[4] = TaichiSphere(r=12.0, p=ti.Vector([20.0, 52.0, 40.0]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([1.0, 0.498, 0.314]), reflection_t=DIFFUSE)  # 5
+taichi_spheres[5] = TaichiSphere(r=12.0, p=ti.Vector([24.0, 48.0, -8.0]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([0.95, 0.95, 0.95]), reflection_t=SPECULAR)  # 5
+taichi_spheres[6] = TaichiSphere(r=12.0, p=ti.Vector([72.0, 8.0, 40.0]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([0.95, 0.95, 0.95]), reflection_t=SPECULAR)  # 3
+taichi_spheres[7] = TaichiSphere(r=12.0, p=ti.Vector([72.0, 8.0, -8.0]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([1.0, 0.498, 0.314]), reflection_t=DIFFUSE)  # 2
+taichi_spheres[8] = TaichiSphere(r=12.0, p=ti.Vector([76.0, 52.0, 40.0]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([0.392, 0.584, 0.929]), reflection_t=DIFFUSE)  # 1
+taichi_spheres[9] = TaichiSphere(r=12.0, p=ti.Vector([72.0, 48.0, -8.0]), e=ti.Vector([0.0, 0.0, 0.0]), f=ti.Vector([0.408, 0.741, 0.467]), reflection_t=DIFFUSE)
 
 @ti.func
 def intersect(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
@@ -191,8 +196,8 @@ def main(nb_samples: int, w: int, h: int):
 if __name__ == "__main__":
     elapsed_time = time.time() 
 
-    w = 1024
-    h = 768
+    w = 400
+    h = 400
     Ls = ti.field(dtype=ti.f64, shape=(w * h, 3))
     nb_samples = int(sys.argv[1]) // 4 if len(sys.argv) > 1 else 1
     main(nb_samples, w, h)
@@ -202,4 +207,4 @@ if __name__ == "__main__":
     with open("time.txt", "a") as file:
         file.write("\n" + device + " " + str(nb_samples) + " " + str(elapsed_time))
     print(elapsed_time)
-    write_ppm(w, h, Ls, "taichi-pathtrace3.ppm")
+    write_ppm(w, h, Ls, "taichi-nineball.ppm")

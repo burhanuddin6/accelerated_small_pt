@@ -134,7 +134,7 @@ def main():
                     
                     Ls[i,:] += 0.25 * np.clip(L, a_min=0.0, a_max=1.0)
 
-    write_ppm(w, h, Ls)
+    write_ppm(w, h, Ls, "numpy_cornwell.ppm")
 
 if __name__ == "__main__":
     main()
