@@ -40,9 +40,7 @@ def _ideal_specular_transmit(d, n, n_out, n_in):
         p_Tr = 1.0 - p_Re
         return d_Tr, (Tr / p_Tr)
 
-from taichi_rng import uniform_float
 
-ti.init(arch=ti.cpu)
 @ti.func
 def ideal_specular_reflect(d: ti.math.vec3, n: ti.math.vec3) -> ti.math.vec3:
     return d - 2.0 * ti.math.dot(n, d) * n

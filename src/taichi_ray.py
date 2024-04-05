@@ -16,7 +16,6 @@
 #         return 'o: ' + str(self.o) + '\n' + 'd: ' + str(self.d) + '\n'
 
 import taichi as ti
-ti.init(arch=ti.cpu)
 
 @ti.dataclass
 class TaichiRay:
@@ -40,4 +39,3 @@ def test_ray():
     ray = TaichiRay(ti.Vector([0.0, 0.0, 0.0]), ti.Vector([1.0, 1.0, 1.0]), 0.0, 1.0, 0)
     print(ray.at(0.5))
     
-test_ray()
