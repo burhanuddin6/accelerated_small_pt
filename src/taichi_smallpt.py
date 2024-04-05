@@ -14,7 +14,10 @@ from taichi_sphere import TaichiSphere
 from taichi_specular import ideal_specular_reflect, ideal_specular_transmit
 from taichi_rng import uniform_float
 
-ti.init(arch=ti.cpu, default_fp=ti.f64, random_seed=606418532)
+if(sys.argv[2] == "gpu"):
+    ti.init(arch=ti.gpu, default_fp=ti.f64, random_seed=606418532)
+else:
+    ti.init(arch=ti.cpu, default_fp=ti.f64, random_seed=606418532)
 
 taichi_spheres = TaichiSphere.field(shape=(NUM_SPHERES,))
 taichi_spheres[0] = TaichiSphere(r=1e5,  p=ti.math.vec3(1e5 + 1, 40.8, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.75,0.25,0.25), reflection_t=DIFFUSE)
@@ -146,14 +149,6 @@ def clip(v, a_min, a_max):
 
 @ti.kernel
 def main(nb_samples: int, w: int, h: int):    
-    
-    # eye = np.array([50, 52, 295.6], dtype=np.float64)
-    # gaze = normalize(np.array([0, -0.042612, -1], dtype=np.float64))
-    # fov = 0.5135
-    # cx = np.array([w * fov / h, 0.0, 0.0], dtype=np.float64)
-    # cy = normalize(np.cross(cx, gaze)) * fov
-
-    # Ls = np.zeros((w * h, 3), dtype=np.float64)
 
     eye = ti.Vector([50, 52, 295.6], dt=ti.f64)
     gaze = ti.math.normalize(ti.Vector([0, -0.042612, -1], dt=ti.f64))
@@ -182,15 +177,15 @@ def main(nb_samples: int, w: int, h: int):
                     temp = radiance(TaichiRay(o=eye + d * 130, d=ti.math.normalize(d), tmin=EPSILON_SPHERE, tmax=ti.math.inf, depth=0)) 
                     L += temp * (1.0 / nb_samples)
                     # print("radiance:", temp)                
-                temp = 0.25 * clip(L, a_min=0.0, a_max=1.0)
+                temp = 0.5 * clip(L, a_min=0.0, a_max=1.0)
                 Ls[i,0] += temp[0]
                 Ls[i,1] += temp[1]
                 Ls[i,2] += temp[2]
 
 if __name__ == "__main__":
     # test_taichi_intersect()
-    w = 400
-    h = 400
+    w = 1024
+    h = 768
     Ls = ti.field(dtype=ti.f64, shape=(w * h, 3))
     nb_samples = int(sys.argv[1]) // 4 if len(sys.argv) > 1 else 1
     main(nb_samples, w, h)
