@@ -202,6 +202,6 @@ if __name__ == "__main__":
 
     elapsed_time = time.time() - elapsed_time
     with open("time.txt", "a") as file:
-        file.write(elapsed_time)
+        file.write(str(elapsed_time))
     print(elapsed_time)
     write_ppm(w, h, Ls, "taichi-image.ppm")
