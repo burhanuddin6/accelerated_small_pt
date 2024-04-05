@@ -1,5 +1,4 @@
 import numpy as np
-import taichi as ti
 import sys
 
 from image_io import write_ppm
@@ -8,38 +7,14 @@ from rng import RNG
 from sphere import Sphere, Reflection_t
 from ray import Ray
 
+from taichi_common import *
 from taichi_ray import TaichiRay
 from taichi_sampling import cosine_weighted_sample_on_hemisphere
 from taichi_sphere import TaichiSphere
 from taichi_specular import ideal_specular_reflect, ideal_specular_transmit
 from taichi_rng import uniform_float
 
-ti.init(arch=ti.cpu, default_fp=ti.f64)
-
-EPSILON_SPHERE = 1e-4   
-DIFFUSE = 0
-SPECULAR = 1
-REFRACTIVE = 2
-
-# Scene
-REFRACTIVE_INDEX_OUT = 1.0
-REFRACTIVE_INDEX_IN = 1.5
-
-
-spheres = [
-        Sphere(r=1e5,  p=np.array([1e5 + 1, 40.8, 81.6],    dtype=np.float64), f=np.array([0.75,0.25,0.25],      dtype=np.float64)),
-	    Sphere(r=1e5,  p=np.array([-1e5 + 99, 40.8, 81.6],  dtype=np.float64), f=np.array([0.25,0.25,0.75],      dtype=np.float64)),
-	    Sphere(r=1e5,  p=np.array([50, 40.8, 1e5],          dtype=np.float64), f=np.array([0.75, 0.75, 0.75],    dtype=np.float64)),
-	    Sphere(r=1e5,  p=np.array([50, 40.8, -1e5 + 170],   dtype=np.float64)),
-	    Sphere(r=1e5,  p=np.array([50, 1e5, 81.6],          dtype=np.float64), f=np.array([0.75, 0.75, 0.75],    dtype=np.float64)),
-	    Sphere(r=1e5,  p=np.array([50, -1e5 + 81.6, 81.6],  dtype=np.float64), f=np.array([0.75, 0.75, 0.75],    dtype=np.float64)),
-	    Sphere(r=16.5, p=np.array([27, 16.5, 47],           dtype=np.float64), f=np.array([0.999, 0.999, 0.999], dtype=np.float64), reflection_t=Reflection_t.SPECULAR),
-	    Sphere(r=16.5, p=np.array([73, 16.5, 78],           dtype=np.float64), f=np.array([0.999, 0.999, 0.999], dtype=np.float64), reflection_t=Reflection_t.REFRACTIVE),
-	    Sphere(r=600,  p=np.array([50, 681.6 - .27, 81.6],  dtype=np.float64), e=np.array([12, 12, 12],          dtype=np.float64))
-        ]
-
-NUM_SPHERES = 8
-taichi_spheres = TaichiSphere.field(shape=(8,))
+taichi_spheres = TaichiSphere.field(shape=(NUM_SPHERES,))
 taichi_spheres[0] = TaichiSphere(r=1e5,  p=ti.math.vec3(1e5 + 1, 40.8, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.75,0.25,0.25), reflection_t=DIFFUSE)
 taichi_spheres[1] = TaichiSphere(r=1e5,  p=ti.math.vec3(-1e5 + 99, 40.8, 81.6), e=ti.math.vec3(0), f=ti.math.vec3(0.25,0.25,0.75), reflection_t=DIFFUSE)
 taichi_spheres[2] = TaichiSphere(r=1e5,  p=ti.math.vec3(50, 40.8, 1e5), e=ti.math.vec3(0), f=ti.math.vec3(0.75, 0.75, 0.75), reflection_t=DIFFUSE)
@@ -50,7 +25,6 @@ taichi_spheres[6] = TaichiSphere(r=16.5, p=ti.math.vec3(27, 16.5, 47), e=ti.math
 taichi_spheres[7] = TaichiSphere(r=16.5, p=ti.math.vec3(73, 16.5, 78), e=ti.math.vec3(0), f=ti.math.vec3(0.999, 0.999, 0.999), reflection_t=REFRACTIVE)
 taichi_spheres[8] = TaichiSphere(r=600,  p=ti.math.vec3(50, 681.6 - .27, 81.6), e=ti.math.vec3(12, 12, 12), f=ti.math.vec3(0), reflection_t=DIFFUSE)
 
-
 @ti.func
 def intersect(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
     '''
@@ -60,9 +34,11 @@ def intersect(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
     id = -1
     hit = 0
     tmax = ti.math.inf
+    ti.loop_config(serialize=True)
     for i in range(NUM_SPHERES):
         hit_tmax = taichi_spheres[i].intersect(ray)
         if hit_tmax[0] == 1:
+            print("id: ", i, "ray.tmax taichi: ", hit_tmax[1])
             tmax = hit_tmax[1]
             hit = 1
             id = i
@@ -148,8 +124,8 @@ def radiance(ray: TaichiRay) -> ti.types.vector(3, ti.f64):
 
 @ti.kernel
 def test_taichi_radiance():
-    ray = TaichiRay(o=ti.Vector([7.88639855, 13.12551749, 167.13854711]), d=ti.Vector([-0.29938568, -0.27635878, -0.91323274]), tmin=EPSILON_SPHERE, tmax=ti.math.inf, depth=0)
-    print(radiance(ray))
+    r = TaichiRay(o=ti.math.vec3(6.07510647, 13.13940276, 167.13795543), d=ti.math.vec3(-0.31104694, -0.27518496, -0.90968293), tmin=EPSILON_SPHERE, tmax=ti.math.inf, depth=0)
+    print(radiance(r))
     
 @ti.kernel
 def test_taichi_intersect():

@@ -1,4 +1,4 @@
-import taichi as ti
+from taichi_common import *
 
 import numpy as np
 from math_tools import normalize

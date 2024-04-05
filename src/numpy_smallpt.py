@@ -30,6 +30,7 @@ def intersect(ray):
     hit = False
     for i in range(len(spheres)):
         if spheres[i].intersect(ray):
+            print("id: ", i, "ray.tmax np: ", ray.tmax)
             hit = True
             id = i
     return hit, id
