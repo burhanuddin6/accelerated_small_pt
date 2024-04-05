@@ -46,6 +46,7 @@ def radiance(ray: Ray, rng: RNG):
     L = np.zeros((3), dtype=np.float64)
     F = np.ones((3), dtype=np.float64)
     while (True):
+        print("ray.o=", r.o, "ray.d=", r.d)
         hit, id = intersect(r)
         if (not hit):
             return L
@@ -57,6 +58,7 @@ def radiance(ray: Ray, rng: RNG):
         n = normalize(p - shape.p)
 
         L += F * shape.e
+        print("L: ", L, "shape.e: ", shape.e)
         F *= shape.f
         print("L:", L)
 	    # Russian roulette
@@ -75,7 +77,7 @@ def radiance(ray: Ray, rng: RNG):
             d, pr = ideal_specular_transmit(r.d, n, REFRACTIVE_INDEX_OUT, REFRACTIVE_INDEX_IN, rng)
             F *= pr
             r = Ray(p, d, tmin=Sphere.EPSILON_SPHERE, depth=r.depth + 1)
-            continue
+            continue #0.13849026 -0.62708959  0.76653708
         else:
             w = n if n.dot(r.d) < 0 else -n
             u = normalize(np.cross(np.array([0.0, 1.0, 0.0], np.float64) if np.fabs(w[0]) > 0.1 else np.array([1.0, 0.0, 0.0], np.float64), w))
