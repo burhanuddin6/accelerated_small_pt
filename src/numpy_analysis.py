@@ -109,7 +109,7 @@ def main():
     
     for y in range(h):
         # pixel row
-        print('\rRendering ({0} spp) {1:0.2f}%'.format(nb_samples * 4, 100.0 * y / (h - 1)))
+        # print('\rRendering ({0} spp) {1:0.2f}%'.format(nb_samples * 4, 100.0 * y / (h - 1)))
         for x in range(w):
             # pixel column
             for sy in range(2):
