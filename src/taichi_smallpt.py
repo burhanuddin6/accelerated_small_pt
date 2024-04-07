@@ -13,13 +13,13 @@ from taichi_ray import TaichiRay
 from taichi_sampling import cosine_weighted_sample_on_hemisphere
 from taichi_sphere import TaichiSphere
 from taichi_specular import ideal_specular_reflect, ideal_specular_transmit
-from taichi_rng import uniform_float
+from taichi_rng import uniform_float, read_random
 
-device = sys.argv[2]
-if(device == "gpu"):
-    ti.init(arch=ti.gpu, default_fp=ti.f64, random_seed=606418532)
-else:
-    ti.init(arch=ti.cpu, default_fp=ti.f64, random_seed=606418532)
+# device = sys.argv[2]
+# if(device == "gpu"):
+#     ti.init(arch=ti.gpu, default_fp=ti.f64, random_seed=606418532)
+# else:
+#     ti.init(arch=ti.cpu, default_fp=ti.f64, random_seed=606418532)
 
 NUM_SPHERES = 9
 taichi_spheres = TaichiSphere.field(shape=(NUM_SPHERES,))
@@ -187,12 +187,13 @@ def main(nb_samples: int, w: int, h: int):
                     temp = radiance(TaichiRay(o=eye + d * 130, d=ti.math.normalize(d), tmin=EPSILON_SPHERE, tmax=ti.math.inf, depth=0)) 
                     L += temp * (1.0 / nb_samples)
                     # print("radiance:", temp)                
-                temp = 2 * clip(L, a_min=0.0, a_max=1.0)
+                temp = 0.25 * clip(L, a_min=0.0, a_max=1.0)
                 Ls[i,0] += temp[0]
                 Ls[i,1] += temp[1]
                 Ls[i,2] += temp[2]
 
 if __name__ == "__main__":
+    read_random()
     elapsed_time = time.time() 
 
     w = 1024
@@ -203,7 +204,7 @@ if __name__ == "__main__":
     ti.sync()
 
     elapsed_time = time.time() - elapsed_time
-    with open("time.txt", "a") as file:
-        file.write("\n" + device + " " + str(nb_samples) + " " + str(elapsed_time))
+    # with open("time.txt", "a") as file:
+    #     file.write("\n" + device + " " + str(nb_samples) + " " + str(elapsed_time))
     print(elapsed_time)
     write_ppm(w, h, Ls, "taichi-cornwell.ppm")
